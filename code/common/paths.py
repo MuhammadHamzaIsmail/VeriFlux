@@ -22,7 +22,7 @@ MODELS = DATA / "models"
 
 
 def model_path(repo_id: str) -> str:
-    """Local copy (downloaded by code/00_download_models.sh) or the hub id as fallback."""
+    """Local copy (downloaded by code/pipeline/00_download_models.sh) or the hub id as fallback."""
     local = MODELS / repo_id.replace("/", "__")
     return str(local) if (local / "config.json").exists() else repo_id
 

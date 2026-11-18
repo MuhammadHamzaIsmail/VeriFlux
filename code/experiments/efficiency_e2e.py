@@ -10,7 +10,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1])); sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "pipeline"))
 from common.paths import (CACHE, TABLES, PROCESSED, EVIDENCE_DIR, XLMR, BGE_M3, NORGLM, XNLI_MINI,
                           SBERT_MINI, RERANKER, set_seed)
 from common.text import clean
@@ -37,7 +37,7 @@ def keepup():
     import torch
     from transformers import AutoTokenizer, AutoModel, AutoModelForSequenceClassification
     torch.set_num_threads(8)
-    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1])); sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "pipeline"))
     from base_keepup.keepup_model import KeepUpNet
     _, com, sp, sc, claims = sample()
     res = {}
@@ -90,7 +90,7 @@ def veriflux():
     import torch
     from transformers import AutoTokenizer, AutoModel, AutoModelForSequenceClassification
     torch.set_num_threads(8)
-    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1])); sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "pipeline"))
     from common.features import DEBUNK_RE
     from proposed.veriflux import _tfidf_lr, GRID, BASE
     from lightgbm import LGBMClassifier
@@ -217,7 +217,7 @@ def main():
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
-        sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1])); sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "pipeline"))
         child(sys.argv[1])
     else:
         main()

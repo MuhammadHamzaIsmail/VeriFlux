@@ -17,7 +17,7 @@ import pandas as pd
 from scipy import sparse
 from sklearn.feature_extraction.text import CountVectorizer
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # code/, for common.*
 from common.paths import PROCESSED, EVIDENCE_DIR, CACHE, TABLES, BGE_M3 as DENSE_MODEL, RERANKER
 from common.text import clean
 

@@ -11,7 +11,7 @@ Models
   bigru          frozen XLM-R tokens -> BiGRU  -> mean pool
   xstancefusion  frozen XLM-R tokens -> BiLSTM -> BiGRU -> attention  (KeepUp, Sec. 4.3.1)
 
-usage: python 05_stance.py [--models tfidf_lr,xlmr_lr,...] [--epochs 3]
+usage: python code/pipeline/05_stance.py [--models tfidf_lr,xlmr_lr,...] [--epochs 3]
 """
 import sys, time, argparse, json
 from pathlib import Path
@@ -23,7 +23,7 @@ from sklearn.pipeline import make_union
 from sklearn.model_selection import StratifiedGroupKFold
 from sklearn.metrics import accuracy_score, precision_recall_fscore_support
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # code/, for common.*
 from common.paths import PROCESSED, CACHE, TABLES, SEED, set_seed
 from common.text import clean
 
