@@ -1,6 +1,6 @@
 # VeriFlux — Lightweight, Explainable, Socially-Informed Fake News Detection on KeepUp
 
-Source code for the final research paper. It contains three clearly separated implementations:
+Source code for the final research paper (repository: https://github.com/MuhammadHamzaIsmail/VeriFlux). It contains three clearly separated implementations:
 
 | Part | Folder | What it is |
 |---|---|---|
