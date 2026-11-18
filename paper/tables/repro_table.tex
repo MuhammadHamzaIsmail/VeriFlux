@@ -1,0 +1,19 @@
+\begin{table}[t]
+\centering
+\caption{KeepUp: values reported in the paper vs.\ this reproduction}
+\label{tab:repro}
+\footnotesize
+\begin{tabular}{lccc}
+\toprule
+Item & Reported & Ours (random) & Ours (event)\\
+\midrule
+Retrieval MRR@10 (dense BGE) & 0.890 & 0.859 & --\\
+Retrieval MRR@10 (+ re-rank) & 0.890 & 0.720 & --\\
+XStanceFusion stance macro-F1 & 0.680 & -- & 0.527 (event cross-fit)\\
+KeepUp accuracy (released code) & 0.780 & 0.692 & 0.587\\
+KeepUp macro-F1 (released code) & 0.780 & 0.686 & 0.543\\
+KeepUp macro-F1 (paper spec) & 0.780 & 0.712 & 0.565\\
+KeepUp ROC-AUC (paper spec) & 0.840 & 0.781 & 0.653\\
+\bottomrule
+\end{tabular}
+\end{table}

@@ -1,0 +1,33 @@
+[xlmr_lr] fold 0: train 55602 test 13905
+[xlmr_lr] fold 1: train 55632 test 13875
+[xlmr_lr] fold 2: train 55667 test 13840
+[xlmr_lr] fold 3: train 55656 test 13851
+[xlmr_lr] fold 4: train 55471 test 14036
+{'model': 'xlmr_lr', 'precision': 0.49058341904331554, 'recall': 0.5510530059836874, 'f1': 0.502579117587406, 'accuracy': 0.5005539010459378, 'minutes': 33.29457916021347}
+[xstancefusion] fold 0: train 55602 test 13905
+    xstancefusion epoch 1/3 loss=1.1307 (463s)
+    xstancefusion epoch 2/3 loss=0.9856 (473s)
+    xstancefusion epoch 3/3 loss=0.9472 (521s)
+[xstancefusion] fold 1: train 55632 test 13875
+    xstancefusion epoch 1/3 loss=1.1040 (520s)
+    xstancefusion epoch 2/3 loss=0.9403 (458s)
+    xstancefusion epoch 3/3 loss=0.8982 (558s)
+[xstancefusion] fold 2: train 55667 test 13840
+    xstancefusion epoch 1/3 loss=1.1056 (526s)
+    xstancefusion epoch 2/3 loss=0.9441 (543s)
+    xstancefusion epoch 3/3 loss=0.9057 (496s)
+[xstancefusion] fold 3: train 55656 test 13851
+    xstancefusion epoch 1/3 loss=1.0968 (466s)
+    xstancefusion epoch 2/3 loss=0.9395 (454s)
+    xstancefusion epoch 3/3 loss=0.8988 (443s)
+[xstancefusion] fold 4: train 55471 test 14036
+    xstancefusion epoch 1/3 loss=1.1019 (485s)
+    xstancefusion epoch 2/3 loss=0.9377 (1361s)
+    xstancefusion epoch 3/3 loss=0.8963 (543s)
+{'model': 'xstancefusion', 'precision': 0.5138597973951985, 'recall': 0.5583391140330412, 'f1': 0.5267990738205629, 'accuracy': 0.5357446012631821, 'minutes': 141.4101958155632}
+[bilstm] fold 0: train 55602 test 13905
+    bilstm epoch 1/3 loss=1.1563 (323s)
+    bilstm epoch 2/3 loss=1.0151 (322s)
+    bilstm epoch 3/3 loss=0.9859 (323s)
+[bilstm] fold 1: train 55632 test 13875
+    bilstm epoch 1/3 loss=1.1362 (282s)

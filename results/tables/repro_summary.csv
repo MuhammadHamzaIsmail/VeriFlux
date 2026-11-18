@@ -1,0 +1,8 @@
+item,reported,ours_random,ours_event
+Retrieval MRR@10 (dense BGE),0.89,0.859,--
+Retrieval MRR@10 (+ re-rank),0.89,0.720,--
+XStanceFusion stance macro-F1,0.68,--,0.527 (event cross-fit)
+KeepUp accuracy (released code),0.78,0.692,0.587
+KeepUp macro-F1 (released code),0.78,0.686,0.543
+KeepUp macro-F1 (paper spec),0.78,0.712,0.565
+KeepUp ROC-AUC (paper spec),0.84,0.781,0.653

@@ -1,0 +1,17 @@
+Loading weights:   0%|          | 0/201 [00:00<?, ?it/s]Loading weights: 100%|██████████| 201/201 [00:00<00:00, 10577.32it/s]
+  D:\Semester 7 Material\Social Network\Project\data\models\NorGLM__Entailment 8/188 0.1min
+  D:\Semester 7 Material\Social Network\Project\data\models\NorGLM__Entailment 168/188 1.9min
+NorGLM labels: {0: 'label_0', 1: 'label_1', 2: 'label_2'} | positive_prob mean: 0.9146525859832764
+                 count   mean    std    min    25%    50%    75%    max
+ev_E_top1        188.0  0.354  0.214  0.005  0.190  0.322  0.481  0.981
+ev_N_top1        188.0  0.294  0.163  0.008  0.182  0.262  0.378  0.974
+ev_C_top1        188.0  0.352  0.188  0.007  0.215  0.326  0.471  0.841
+ev_maxE_top3     188.0  0.482  0.187  0.107  0.356  0.463  0.585  0.981
+ev_maxC_top3     188.0  0.521  0.151  0.153  0.416  0.538  0.635  0.846
+keepup_pos_prob  188.0  0.915  0.256  0.000  0.999  1.000  1.000  1.000
+          count     mean      std    min      25%      50%      75%       max
+post_id  1024.0  512.500  295.748  1.000  256.750  512.500  768.250  1024.000
+pc_E     1024.0    0.171    0.281  0.001    0.009    0.036    0.170     0.994
+pc_N     1024.0    0.461    0.318  0.003    0.159    0.442    0.748     0.995
+pc_C     1024.0    0.368    0.300  0.002    0.089    0.299    0.620     0.990
+pc_cos   1024.0    0.561    0.224 -0.147    0.406    0.571    0.727     1.000

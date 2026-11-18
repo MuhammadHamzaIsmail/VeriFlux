@@ -1,0 +1,20 @@
+\begin{table}[t]
+\centering
+\caption{CPU cost per post (Intel i7-8665U, batch size 1) and model size}
+\label{tab:cost}
+\footnotesize
+\begin{tabular}{lcc}
+\toprule
+Component & ms/post & Weights MB\\
+\midrule
+KeepUp: claim-level (per claim) & 5545 & --\\
+KeepUp: post-level & 5096 & --\\
+KeepUp (total) & 6028 & 4356\\
+VeriFlux-Lite / VeriFlux: claim-level (per claim) & 366 & --\\
+VeriFlux-Lite / VeriFlux: post-level & 143 & --\\
+VeriFlux-Lite (total) & 204 & 899\\
+VeriFlux: XLM-R doc embedding + SVM & 364 & --\\
+VeriFlux (total) & 569 & 2011\\
+\bottomrule
+\end{tabular}
+\end{table}

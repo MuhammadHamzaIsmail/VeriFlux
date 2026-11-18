@@ -1,0 +1,41 @@
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights:  11%|█         | 21/199 [00:00<00:00, 204.90it/s]Loading weights:  21%|██        | 42/199 [00:00<00:00, 160.12it/s]Loading weights:  30%|██▉       | 59/199 [00:00<00:00, 143.66it/s]Loading weights:  66%|██████▋   | 132/199 [00:00<00:00, 335.76it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 367.93it/s]
+[transformers] [1mXLMRobertaModel LOAD REPORT[0m from: D:\Semester 7 Material\Social Network\Project\data\models\FacebookAI__xlm-roberta-base
+Key                       | Status     |  | 
+--------------------------+------------+--+-
+lm_head.bias              | UNEXPECTED |  | 
+lm_head.layer_norm.weight | UNEXPECTED |  | 
+lm_head.dense.bias        | UNEXPECTED |  | 
+lm_head.layer_norm.bias   | UNEXPECTED |  | 
+lm_head.dense.weight      | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+  titles: 200/1024
+  titles: 400/1024
+  titles: 600/1024
+  titles: 800/1024
+  titles: 1000/1024
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights:  16%|█▌        | 32/199 [00:00<00:00, 300.07it/s]Loading weights:  32%|███▏      | 63/199 [00:00<00:00, 242.48it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 764.22it/s]
+[transformers] [1mXLMRobertaModel LOAD REPORT[0m from: D:\Semester 7 Material\Social Network\Project\data\models\FacebookAI__xlm-roberta-base
+Key                       | Status     |  | 
+--------------------------+------------+--+-
+lm_head.bias              | UNEXPECTED |  | 
+lm_head.layer_norm.weight | UNEXPECTED |  | 
+lm_head.dense.bias        | UNEXPECTED |  | 
+lm_head.layer_norm.bias   | UNEXPECTED |  | 
+lm_head.dense.weight      | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+  posts 4/1024 0.1min
+  posts 104/1024 1.5min
+  posts 204/1024 3.0min
+  posts 304/1024 4.6min
+  posts 404/1024 7.8min
+  posts 504/1024 10.8min
+  posts 604/1024 14.5min
+  posts 704/1024 17.5min
+  posts 804/1024 21.0min
+  posts 904/1024 24.0min
+  posts 1004/1024 27.5min
+done

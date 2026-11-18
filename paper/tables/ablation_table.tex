@@ -1,0 +1,28 @@
+\begin{table}[t]
+\centering
+\caption{VeriFlux ablation on the event-held-out protocol (15 folds)}
+\label{tab:ablation}
+\footnotesize
+\begin{tabular}{lccc}
+\toprule
+Configuration & F1 & sd & AUC\\
+\midrule
+VeriFlux (full) & 0.628 & 0.059 & 0.687\\
+VeriFlux w/o event contrast [E, F] & 0.617 & 0.089 & 0.673\\
+VeriFlux w/o named features [E, Ec] & 0.629 & 0.056 & 0.690\\
+VeriFlux w/o text embedding [F, Fc] & 0.572 & 0.053 & 0.626\\
+VeriFlux-Lite (full) & 0.593 & 0.069 & 0.649\\
+Lite classifier: Random Forest & 0.610 & 0.082 & 0.671\\
+Lite only text prior & 0.581 & 0.060 & 0.614\\
+Lite w/o contrast and text prior & 0.568 & 0.071 & 0.614\\
+Lite w/o engagement features & 0.582 & 0.074 & 0.638\\
+Lite w/o event contrast & 0.579 & 0.069 & 0.629\\
+Lite w/o evidence features & 0.595 & 0.078 & 0.643\\
+Lite w/o post\_claim features & 0.592 & 0.073 & 0.632\\
+Lite w/o stance features & 0.590 & 0.079 & 0.649\\
+Lite w/o text prior & 0.577 & 0.065 & 0.632\\
+Lite w/o title features & 0.594 & 0.078 & 0.655\\
+Lite w/o user features & 0.580 & 0.070 & 0.636\\
+\bottomrule
+\end{tabular}
+\end{table}

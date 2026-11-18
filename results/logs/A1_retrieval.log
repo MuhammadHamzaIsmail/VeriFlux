@@ -1,0 +1,43 @@
+11974 evidence docs; 188 claims
+bm25: MRR@10 = 0.7586
+Loading weights:   0%|          | 0/391 [00:00<?, ?it/s]Loading weights: 100%|██████████| 391/391 [00:00<00:00, 7156.80it/s]
+  evidence 16/11974 0.1min
+  evidence 416/11974 9.6min
+  evidence 816/11974 21.0min
+  evidence 1216/11974 32.9min
+  evidence 1616/11974 43.7min
+  evidence 2016/11974 53.7min
+  evidence 2416/11974 63.5min
+  evidence 2816/11974 72.9min
+  evidence 3216/11974 82.9min
+  evidence 3616/11974 93.1min
+  evidence 4016/11974 103.1min
+  evidence 4416/11974 113.3min
+  evidence 4816/11974 123.1min
+  evidence 5216/11974 133.9min
+  evidence 5616/11974 144.6min
+  evidence 6016/11974 156.1min
+  evidence 6416/11974 168.4min
+  evidence 6816/11974 180.7min
+  evidence 7216/11974 193.2min
+  evidence 7616/11974 205.3min
+  evidence 8016/11974 216.9min
+  evidence 8416/11974 228.5min
+  evidence 8816/11974 240.1min
+  evidence 9216/11974 251.8min
+  evidence 9616/11974 260.1min
+  evidence 10016/11974 267.4min
+  evidence 10416/11974 274.6min
+  evidence 10816/11974 281.8min
+  evidence 11216/11974 289.2min
+  evidence 11616/11974 296.5min
+Loading weights:   0%|          | 0/391 [00:00<?, ?it/s]Loading weights: 100%|██████████| 391/391 [00:00<00:00, 6461.70it/s]
+  claims 16/188 0.0min
+bge_m3: MRR@10 = 0.8594
+Loading weights:   0%|          | 0/201 [00:00<?, ?it/s]Loading weights:  11%|█         | 22/201 [00:00<00:00, 208.80it/s]Loading weights:  51%|█████     | 102/201 [00:00<00:00, 548.66it/s]Loading weights: 100%|██████████| 201/201 [00:00<00:00, 922.63it/s]
+bge_m3_rerank: MRR@10 = 0.7196
+                retriever     mrr10     minutes
+0                    BM25  0.758599    0.360722
+1          BGE-M3 (dense)  0.859397  304.103952
+2  BGE-M3 + cross-encoder  0.719584  318.238151
+3  KeepUp released output  0.899601         NaN

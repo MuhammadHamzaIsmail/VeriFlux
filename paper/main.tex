@@ -1,0 +1,594 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta}
+\usepackage{url}
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+\input{tables/numbers.tex}   % macros with every reported result (generated from results/tables/*.csv)
+
+\begin{document}
+
+\title{VeriFlux: Lightweight, Event-Aware and Explainable Fake News Detection from Social Signals on the KeepUp Dataset}
+
+\author{\IEEEauthorblockN{M. Shah Nawaz}
+\IEEEauthorblockA{\textit{Dept. of Software Engineering} \\
+\textit{FAST-NUCES, Chiniot--Faisalabad Campus}\\
+Chiniot, Pakistan \\
+f233077@cfd.nu.edu.pk}
+\and
+\IEEEauthorblockN{M. Hamza Ismail}
+\IEEEauthorblockA{\textit{Dept. of Software Engineering} \\
+\textit{FAST-NUCES, Chiniot--Faisalabad Campus}\\
+Chiniot, Pakistan \\
+f233109@cfd.nu.edu.pk}
+}
+
+\maketitle
+
+% ===========================================================================
+\begin{abstract}
+Fake news on social media is now detected by systems that combine the post text with external evidence,
+the stance of comments, the profile of the author and engagement counts. KeepUp is a recent framework of this
+kind for multilingual and Urdu content, but it is computationally heavy, its decisions are not explained, and
+it was evaluated on a random split of posts. Because many posts in KeepUp describe the same event, a random
+split places near-duplicate stories in both training and test data. We show that a rule which only returns the
+majority label of a post's event reaches a macro-F1 of \LookupRandomFone{} under a random split but only
+\LookupEventFone{} when whole events are held out. We therefore re-implement KeepUp and thirteen baselines
+under one protocol in which test events are never seen during training, and propose VeriFlux. VeriFlux pairs a
+frozen multilingual text embedding and 38 named evidence, stance, user, engagement and title features with an
+event-context contrast that compares each post with the other posts about the same claim, and classifies the
+result with a kernel support vector machine. A transformer-free variant, VeriFlux-Lite, uses gradient boosting
+and is explained with TreeSHAP. On unseen events VeriFlux obtains the best macro-F1 (\VFeventFone{}) and AUC
+(\VFeventAuc{}) of all eighteen models, significantly above KeepUp (\KUeventFone{}), while running
+\LatencyRatio{} times faster on a laptop CPU. VeriFlux-Lite gives the best random-split macro-F1
+(\VFLrandomFone{}). The results show that honest, low-cost evaluation is essential before such detectors are
+deployed.
+\end{abstract}
+
+\begin{IEEEkeywords}
+fake news detection, social context, event-held-out evaluation, data leakage, explainable AI, Urdu
+\end{IEEEkeywords}
+
+% ===========================================================================
+\section{Introduction}
+Social media platforms have become a primary source of news for a large share of internet users, and in
+countries such as Pakistan a single misleading post about health, politics or religion can be reshared
+thousands of times within hours. Fake news on these platforms is rarely a plain article: it is a short,
+often code-mixed post that sits inside a network of comments, reactions and authors with different
+credibility. The base paper of this study, KeepUp \cite{wasim2026keepup}, released a dataset that captures
+this setting for English, Urdu and Roman Urdu content and proposed a unified framework to exploit it.
+
+Detection research has moved in the same direction, from text-only classifiers towards systems that combine
+external evidence, comment stance, user profiles and propagation patterns
+\cite{wasim2026keepup,almutair2025msdsi,nivedita2026hgcm}. KeepUp follows this trend: it retrieves evidence
+with a dense multilingual retriever, scores entailment with a large language model, classifies the stance of
+every comment with a fusion network and combines all signals in a CNN and BiGRU model, reporting an accuracy
+and F1 of 0.78.
+
+Two properties of this result motivate our work. First, the score was obtained with a single random split
+of posts. In KeepUp, posts are grouped around 172 events (a median of four posts per event), and the labels
+inside an event are highly uniform (label purity \EventPurity). A random split therefore places posts about
+the same claim in both training and test data. To measure the effect, we evaluated a trivial rule that
+predicts the majority training label of a post's event: it reaches a macro-F1 of \LookupRandomFone{} on random
+splits, close to KeepUp's reported score, but only \LookupEventFone{} when events are held out. Second, the
+framework requires several transformer models per post, including a stance network applied to every comment,
+yet its computational cost is not reported and its predictions are not explained.
+
+Our literature review of fifteen 2025--2026 journal articles found the same pattern across the field. Models
+that use rich social context are heavy and rarely explained; runtime is reported only for text-only models;
+almost all studies use random splits, and only one tests on unseen events; and Urdu studies do not use social
+signals at all. The objectives of this work are therefore to:
+\begin{itemize}
+\item reproduce KeepUp and the baselines it compares against under a single, leakage-free protocol;
+\item quantify how much of the reported accuracy is explained by event memorisation;
+\item design a lightweight and explainable detector that generalises to events not seen in training;
+\item measure the cost, explanation quality and language-specific behaviour of every model.
+\end{itemize}
+
+The proposed solution, VeriFlux (Fig.~\ref{fig:framework}), keeps KeepUp's four signal families but replaces
+its expensive components with compact alternatives: BM25 retrieval with a small multilingual NLI model, a
+light cross-fitted stance classifier and a single frozen document embedding. Its main idea is an
+\emph{event-context contrast}: every post is compared with the other, unlabelled posts about the same claim,
+which removes claim-level offsets that a model would otherwise memorise. The contributions are as follows.
+\begin{itemize}
+\item An independent reproduction of KeepUp (two variants) and thirteen baselines on identical folds, with
+every deviation documented. Our best KeepUp variant reaches a random-split macro-F1 of \KUseqrandomFone{} against
+the reported 0.78.
+\item A leakage analysis showing that every model loses between 0.066 and 0.198 macro-F1 when events are held
+out, and that an event lookup rule nearly matches the published KeepUp score on random splits.
+\item VeriFlux, which achieves the best event-held-out macro-F1 (\VFeventFone{}) and AUC (\VFeventAuc{}) of
+all models, a significant gain of 0.085 macro-F1 over KeepUp (Wilcoxon $p=0.003$), and the transformer-free
+VeriFlux-Lite, which is the best model under random splits (\VFLrandomFone{}).
+\item A cost, explanation, comment-budget and language analysis: VeriFlux is \LatencyRatio{} times and
+VeriFlux-Lite 29.5 times faster than KeepUp per post on a laptop CPU, and the TreeSHAP explanations are
+faithful (removing the single top feature changes the prediction seven times more than removing a random one).
+\end{itemize}
+
+The rest of the paper is organised as follows. Section~\ref{sec:lit} reviews related work,
+Section~\ref{sec:method} describes VeriFlux, Section~\ref{sec:setup} gives the experimental setup,
+Section~\ref{sec:results} reports the results, and Sections~\ref{sec:discussion}--\ref{sec:conclusion}
+discuss the findings, limitations and conclusions.
+
+% ===========================================================================
+\section{Literature Review and Related Work}
+\label{sec:lit}
+We reviewed fifteen journal articles published in 2025 and 2026 together with the base paper. They are
+grouped into five themes below and compared in Table~\ref{tab:lit}.
+
+\subsection{Unified multi-signal detection (base paper)}
+KeepUp \cite{wasim2026keepup} addresses fake news detection on Facebook, Instagram, X and YouTube posts
+written in English, Urdu, Roman Urdu and three other languages. Its pipeline retrieves evidence for each
+claim with BGE-M3 and a re-ranker, scores claim--evidence entailment with NorGLM, classifies the stance of each
+comment with an XLM-R based fusion network (XStanceFusion), and combines the resulting counts with user,
+engagement and title features in a CNN and BiGRU network. The released dataset contains 1,024 annotated posts,
+about 70 thousand comments and nearly 12 thousand evidence documents. The authors report 0.78 accuracy and F1
+and 0.84 AUC, ahead of classical, recurrent and transformer baselines. The evaluation, however, uses one random
+post split, the computational cost of the five-model pipeline is not reported, and no per-decision explanation
+is given.
+
+\subsection{Efficiency and lightweight detection}
+EPRVFL \cite{gurjwar2025eprvfl} feeds BERT embeddings into a shallow random-vector functional-link network and
+reaches millisecond-level inference on PolitiFact, LIAR2 and BuzzFeed, showing that a light classifier on top of
+a frozen encoder can be competitive. Elbaghazaoui et al. \cite{elbaghazaoui2025comparative} compare gradient
+boosting, XGBoost and support vector classifiers on ISOT and report near-perfect accuracy together with training
+time, and Mouratidis et al. \cite{mouratidis2025misinformation} benchmark TF-IDF and BERT pipelines with SHAP and
+LIME on four article datasets. All three studies measure cost or explanation, but only on article text, which
+is far easier than short social posts and contains no social context.
+
+\subsection{User profiling and social context}
+MSDSI-FND \cite{almutair2025msdsi} combines linguistic, user and cascade features of influential COVID-19 posts
+and reports an AUC of 0.994, although on only 68 root posts. HGCM-Net \cite{nivedita2026hgcm} builds a
+user--content graph with graph attention and contrastive learning and reaches 97.1\% accuracy on FakeNewsNet;
+the authors note that sparse user graphs cause most errors. SiMiD \cite{ozcelik2025simid} adds community
+information from the follower graph to a contrastive transformer, and Phan et al. \cite{phan2025context} combine
+BERT content features with a dependency-graph network. These works confirm that social context helps, but each
+relies on large graphs or several deep encoders, and none reports runtime.
+
+\subsection{Evidence, stance and context}
+HCFND \cite{kumar2025hcfnd} retrieves context through hashtags and named entities and improves over earlier
+detectors, but it depends on posts that carry hashtags. Sun et al. \cite{sun2025evolving} model how the stance of
+replies evolves over time inside a multimodal graph and show that stance dynamics are informative for rumour
+detection, at the cost of a heavy multimodal architecture. Together with KeepUp, these studies motivate the
+evidence and stance families in our model, while pointing to the need for cheaper extractors.
+
+\subsection{Early detection and cross-event generalisation}
+LDPG \cite{ji2026ldpg} builds local propagation graphs over time windows and remains accurate when only early
+reactions are available, but it requires timestamped propagation data and images. EvolveDetector
+\cite{ding2025evolvedetector} is the only reviewed study that explicitly tests on emerging events: it
+accumulates event knowledge through continual learning and outperforms static detectors on new events from X
+and Weibo, although it uses content alone.
+
+\subsection{Explainable, multilingual and Urdu detection}
+HEMT-Fake \cite{jadhav2025hemtfake} fuses four encoders for multilingual and multimodal news and validates its
+explanations with a human study, but it does not cover Urdu. For Urdu, Harris et al. stack three transformers
+\cite{harris2025urduensemble} and fine-tune a 7-billion-parameter LLaMA-2 model with LoRA on a new 78-thousand
+article corpus \cite{harris2025hookbait}, and Farooq et al. \cite{farooq2025urdu} compare classical, deep and
+large language models on two Urdu benchmarks. All three Urdu studies classify article text only and ignore the
+social signals that KeepUp provides.
+
+\subsection{Comparative analysis and research gap}
+Table~\ref{tab:lit} summarises the reviewed work. The studies that exploit social context (KeepUp, MSDSI-FND,
+HGCM-Net, SiMiD, HCFND, LDPG) are also the heaviest, and none of them reports computational cost or a faithful
+explanation, while the studies that do report cost (EPRVFL and the comparative work) use only article text.
+Most evaluations rely on random splits, so a model can succeed by recognising the story rather than judging the
+post; only EvolveDetector measures performance on unseen events. Finally, Urdu detection research has not yet
+used comments, users or engagement. The central gap is therefore the lack of a social-context fake news
+detector for multilingual and Urdu posts that is evaluated on unseen events, runs at low cost on a CPU and
+explains its decisions.
+
+\input{tables/lit_table.tex}
+
+% ===========================================================================
+\section{Proposed Methodology}
+\label{sec:method}
+\subsection{Overview}
+Fig.~\ref{fig:framework} shows the complete pipeline. The posts are first divided into folds by event, so that
+every subsequent component is trained only on training events. For each claim, BM25 retrieves evidence that a
+small multilingual NLI model compares with the claim and with the post title. A cross-fitted TF-IDF classifier
+labels the stance of each comment, and the resulting proportions are combined with user, engagement and title
+statistics into 38 named features. In parallel, a frozen XLM-R encoder produces one document embedding per
+post. Both representations are paired with their event-context contrast and classified by an RBF support vector
+machine (VeriFlux). The transformer-free VeriFlux-Lite replaces the embedding with an out-of-fold TF-IDF text
+prior and uses LightGBM, whose predictions are explained exactly with TreeSHAP.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/framework.pdf}
+\caption{VeriFlux framework. Data are split by event before any model is fitted. A frozen text embedding and 38 named
+features are paired with their event-context contrast and classified by an RBF-SVM (VeriFlux); the transformer-free
+VeriFlux-Lite uses LightGBM on the named features and is explained with TreeSHAP.}
+\label{fig:framework}
+\end{figure*}
+
+\subsection{Dataset and preparation}
+We use the public KeepUp dataset (Table~\ref{tab:data}). It contains 1,024 labelled posts (537 fake and 487 real,
+with label 1 denoting fake) about 172 events, 188 claims with 11,974 evidence documents, and 69,507 comments
+annotated as agree, disagree, query or comment. Titles and comments were cleaned by removing URLs, user mentions
+and hashtag symbols; code-mixed text was kept as written and not translated. Count variables such as likes,
+followers and views were transformed with $\log(1+x)$. A language tag was assigned to each title by script:
+Arabic script was tagged as Urdu, and Latin script was tagged as Roman Urdu when at least 10\% of its tokens
+appear in a Roman-Urdu lexicon, otherwise as English. Several attributes are often missing (views for 48\% of
+posts, shares for 52\% and the account joining date for 72\%); they were kept as missing values for the tree
+models and median-imputed for the others.
+
+\input{tables/data_table.tex}
+
+\subsection{Problem formulation}
+We now fix the notation used in the rest of the section.
+Let $\mathcal{D}=\{(p_i, e_i, y_i)\}_{i=1}^{N}$ be posts $p_i$ about event $e_i$ with label
+$y_i\in\{0,1\}$ ($1=$ fake). Each event has a claim $c_{e}$, and each post has a comment set $C_i$.
+A detector learns $f:\mathbf{x}_i\mapsto \hat{y}_i\in[0,1]$. Under the event-held-out protocol the
+training and test sets satisfy
+\begin{equation}
+\{e_i : i\in\mathcal{T}_{\text{train}}\}\cap\{e_j : j\in\mathcal{T}_{\text{test}}\}=\varnothing .
+\label{eq:eventsplit}
+\end{equation}
+
+\subsection{Feature families}
+The named features follow the four signal families of KeepUp, but each family is computed with a component
+that costs a fraction of the original.
+
+\textbf{Evidence (6).} Evidence tells the model whether the claim behind a post is supported by trusted
+sources. BM25 \cite{robertson2009bm25} retrieves the top-3 documents $d^{(1..3)}$ for claim $c$;
+a 6-layer multilingual MiniLM NLI model \cite{wang2020minilm,conneau2018xnli} gives
+$\mathbf{q}(d,c)=[P_E,P_N,P_C]$ with the evidence as premise. Features: $\mathbf{q}(d^{(1)},c)$,
+$\max_k P_E(d^{(k)},c)$, $\max_k P_C(d^{(k)},c)$ and the BM25 score.
+
+\textbf{Post--claim agreement (5).} A post may repeat a claim or argue against it, so the claim verdict alone
+does not decide the label. With the claim as premise and the post title $t_i$ as hypothesis we compute
+$\mathbf{r}_i=[P_E,P_N,P_C](c, t_i)$, the multilingual sentence-embedding cosine
+$\cos(\phi(c),\phi(t_i))$ \cite{reimers2020multilingual}, and a veracity-consistency term motivated by
+KeepUp's annotation guideline (a post is fake when it agrees with a false claim):
+\begin{equation}
+\kappa_i=\big(P_E(d^{(1)},c)-P_C(d^{(1)},c)\big)\cdot\big(P_E(c,t_i)-P_C(c,t_i)\big).
+\label{eq:consistency}
+\end{equation}
+
+\textbf{Stance (8).} Readers often challenge false posts in the comments, as shown by the stance-based work in
+Section~\ref{sec:lit}. A char/word TF-IDF logistic-regression stance classifier $g$ is cross-fitted over
+events so that no comment is labelled by a model trained on its own event. For post $i$ and stance
+$k\in\{A,D,Q,C\}$,
+\begin{equation}
+s_{ik}=\frac{|\{c\in C_i:\arg\max g(c)=k\}|}{\max(1,|C_i|)},
+\label{eq:stance}
+\end{equation}
+plus $\log(1+|C_i|)$, a no-comment flag, the share of comments containing a 30-term debunk lexicon
+(English, Roman Urdu, Urdu) and the doubt index $s_{iD}+s_{iQ}-s_{iA}$.
+
+\textbf{User (5), engagement (9) and title (5).} Author credibility and audience reaction are the social
+signals used by user-profiling studies \cite{almutair2025msdsi,nivedita2026hgcm}. We use log followers,
+followings, account age and post count and the verification flag; log likes, comments, shares and views,
+platform and media type; and title length, character count, Urdu script, URL and exclamation counts.
+
+\subsection{Event-context contrast}
+Posts about the same claim reach the platform together, and at inference time the other posts about a claim
+are usually visible even when their labels are not. Raw features contain large claim-level offsets (for
+example, all posts about one claim share the same evidence scores), and a classifier can memorise these offsets
+instead of learning what separates a fake post from a real one. We therefore compare each post with its
+unlabelled siblings. For any post-level vector $\mathbf{v}_i$ (text embedding or named features) the contrast
+vector is
+\begin{equation}
+\tilde{\mathbf{v}}_{i}=\mathbf{v}_{i}-\frac{1}{|S(e_i)|}\sum_{l\in S(e_i)}\mathbf{v}_{l},
+\label{eq:contrast}
+\end{equation}
+where $S(e_i)$ is the set of posts about event $e_i$ (training or test; labels unused). Because no label is
+involved, the contrast does not leak test information, and Section~\ref{sec:results} shows that it is exactly
+the claim-level memorisation that it removes which inflates random-split scores.
+
+\subsection{VeriFlux classifier}
+The dense text view is the mean-pooled embedding of the title and comments produced by a frozen XLM-R base
+encoder \cite{conneau2020xlmr}. It is computed once per post, without fine-tuning, without a stance network over
+every comment and without dense retrieval. The original vectors and their contrasts are concatenated and
+standardised with training statistics:
+\begin{equation}
+\mathbf{z}_i=\big[\mathbf{e}_i,\ \tilde{\mathbf{e}}_i,\ \mathbf{f}_i,\ \tilde{\mathbf{f}}_i\big],\qquad
+\hat{y}_i=\sigma\Big(a\sum_{j}\alpha_j y_j K(\mathbf{z}_j,\mathbf{z}_i)+b\Big),
+\label{eq:z}
+\end{equation}
+with $K(\mathbf{z},\mathbf{z}')=\exp(-\gamma\lVert\mathbf{z}-\mathbf{z}'\rVert^2)$ and Platt-scaled
+probabilities ($a,b$). This gives a 1,612-dimensional input ($2\times768+2\times38$). We chose a kernel
+classifier because the training folds contain only about 800 posts: a maximum-margin model with an RBF kernel
+is stable on small, high-dimensional data and has only two hyper-parameters, whereas deep fusion networks
+overfit quickly at this scale.
+
+\subsection{VeriFlux-Lite: transformer-free, explainable variant}
+Some deployments, such as a fact-checking desk without a GPU, cannot run any transformer encoder. VeriFlux-Lite
+therefore uses only the named features, their contrasts and a text prior $t$: the out-of-fold probability of a
+character and word TF-IDF logistic regression trained on the post text, combined by stacking
+\cite{wolpert1992stacking}. The input $[\mathbf{f},\tilde{\mathbf{f}},t,\tilde t]$ is classified by LightGBM
+\cite{ke2017lightgbm}, whose hyper-parameters are selected from a 16-point grid on validation events. Because the
+model is a tree ensemble, TreeSHAP \cite{lundberg2020treeshap,lundberg2017shap} decomposes each prediction
+exactly into feature contributions:
+\begin{equation}
+\operatorname{logit}\hat{y}_i=\phi_0+\sum_{j}\phi_{ij}.
+\label{eq:shap}
+\end{equation}
+
+\subsection{Design iterations}
+The first version of our method was the stacked LightGBM model now called VeriFlux-Lite. It was the strongest
+model under random splits, but on unseen events it did not beat the kernel and forest baselines
+(Table~\ref{tab:main}). An analysis on the development folds (seed 42) showed that most of the cross-event signal
+was carried by the dense multilingual embedding rather than by the claim-level features, and that adding the
+event-centred copy of the embedding raised development F1. A validation-weighted fusion of two separate experts
+was also tried and rejected, because the small validation split made its weights unstable. The final VeriFlux is
+the result of this iteration. We note that the development folds are five of the fifteen folds reported in
+Section~\ref{sec:results}, which may slightly favour the final design.
+
+\begin{algorithm}[t]
+\caption{VeriFlux training and inference for one fold}
+\label{alg:veriflux}
+\begin{algorithmic}[1]
+\Require posts $\mathcal{T}_{\text{train}},\mathcal{T}_{\text{test}}$ with disjoint events; comments; claims; evidence
+\State Cross-fit stance classifier $g$ over events; aggregate with Eq.~(\ref{eq:stance})
+\State Retrieve evidence with BM25; compute NLI features and $\kappa_i$ (Eq.~\ref{eq:consistency})
+\State Build named features $\mathbf{f}_i$ and frozen XLM-R embeddings $\mathbf{e}_i$ for all posts
+\State Compute contrast vectors $\tilde{\mathbf{e}}_i,\tilde{\mathbf{f}}_i$ over sibling posts (Eq.~\ref{eq:contrast})
+\State Standardise $\mathbf{z}_i$ (Eq.~\ref{eq:z}) with statistics of $\mathcal{T}_{\text{train}}$
+\State Fit the RBF-SVM on $\mathcal{T}_{\text{train}}$; output $\hat{y}_i$ for $\mathcal{T}_{\text{test}}$
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{How the design addresses the gap}
+Each part of VeriFlux targets one of the gaps identified in Section~\ref{sec:lit}. \emph{Cost} is addressed by
+replacing dense retrieval, the large entailment model and the per-comment stance network with BM25, a 6-layer
+NLI model, a TF-IDF stance classifier and a single frozen embedding. \emph{Generalisation to new events} is
+addressed by the event-held-out protocol of Eq.~(\ref{eq:eventsplit}), by cross-fitting the stance model over
+events and by the event-context contrast. \emph{Explainability} is provided by named features and exact TreeSHAP
+attributions in VeriFlux-Lite, whose fidelity we measure. \emph{Low-resource languages} are handled by
+multilingual encoders and a trilingual debunk lexicon without translation, and the results are reported
+separately for English, Urdu and Roman Urdu titles. Finally, \emph{reproducibility} is supported by releasing
+the code, fixed seeds and the per-fold predictions of every model.
+
+% ===========================================================================
+\section{Experimental Setup and Implementation}
+\label{sec:setup}
+\subsection{Environment}
+All experiments were run on a single laptop with an Intel Core i7-8665U processor (4 cores, 8 threads), 16 GB
+of RAM and no GPU, under Windows 10. The software stack was Python 3.14, PyTorch 2.15 (CPU build)
+\cite{paszke2019pytorch}, Hugging Face Transformers 5.23 \cite{wolf2020transformers}, scikit-learn 1.9
+\cite{pedregosa2011sklearn}, LightGBM 4.7, XGBoost 3.4 \cite{chen2016xgboost} and SHAP 0.54. Seeds 42, 43 and 44
+were fixed for every library.
+
+\subsection{Evaluation protocol}
+Two protocols are used, and every model sees exactly the same folds. In the primary \emph{event-held-out}
+protocol, StratifiedGroupKFold with five folds groups posts by event, so the claim, evidence and sibling posts of
+a test event are never seen in training; the split is repeated with three seeds, giving 15 test folds. For
+comparison with KeepUp, a \emph{random} protocol uses StratifiedKFold over posts with the same seeds. Early
+stopping and hyper-parameter selection use an inner validation split of the training events only, and the
+stance features are produced by classifiers cross-fitted over events. This design follows recent advice on
+leakage in machine-learning research \cite{kapoor2023leakage}.
+
+We report accuracy for comparability with KeepUp, macro-averaged precision, recall and F1 because both classes
+matter and are slightly imbalanced, the threshold-free ROC-AUC, and the Matthews correlation coefficient. Paired
+differences between VeriFlux and every other model are tested with the Wilcoxon signed-rank test over the 15
+folds \cite{demsar2006statistical} and McNemar's test on pooled predictions \cite{mcnemar1947}, and a 95\%
+confidence interval is obtained by bootstrapping events.
+
+\subsection{Base paper implementation}
+Table~\ref{tab:repro} compares our reproduction of KeepUp with the published values. All components were
+re-implemented from the paper and the released notebooks: BGE-M3 \cite{chen2024bgem3} retrieval with a
+cross-encoder re-ranker, NorGLM entailment with the positive probability computed as in the released notebook,
+XStanceFusion (BiLSTM, BiGRU and attention over XLM-R token states), and the CNN, BiGRU and numeric fusion network
+with 14 structured features. Some deviations were necessary. Because no GPU was available, XLM-R was used as a
+frozen encoder instead of being fine-tuned. The released training code selects the best epoch on the test set;
+we use early stopping on validation events instead. We implemented two variants: the \emph{released code}
+variant, which feeds a pooled document vector, and the \emph{paper spec} variant, which feeds the
+$512\times768$ token sequence described in the paper. Since the paper does not name its re-ranker, we used a
+multilingual mMARCO MiniLM cross-encoder.
+
+\input{tables/repro_table.tex}
+
+\subsection{Baseline implementation}
+We re-implemented the baseline families listed in the KeepUp paper (Table~\ref{tab:main}). The six machine
+learning baselines (logistic regression, RBF-SVM, random forest, gradient boosting, KNN and XGBoost) and the
+XLM-R + LightGBM and soft-voting ensemble (logistic regression, random forest and XGBoost) hybrids use KeepUp's
+complete feature set: the mean-pooled XLM-R embedding of title and comments (768 dimensions) and the 14
+structured KeepUp features. The deep baselines (LSTM, Bi-RNN, Bi-GRU) and CNN+LSTM read the sub-word sequence of
+title and comments with trainable 128-dimensional embeddings and concatenate the structured features before the
+output layer; Bi-LSTM + XLM-R reads frozen XLM-R token states. All neural models are trained with Adam for at
+most 30 epochs with early stopping (patience 5) on validation events.
+
+\subsection{Proposed solution implementation}
+VeriFlux uses an RBF-SVM with $C=1$ and the default scale-based $\gamma$ on standardised inputs, with Platt
+scaling for probabilities. VeriFlux-Lite searches 16 LightGBM configurations (2 values each of number of leaves,
+learning rate, number of trees and minimum child samples) on validation events and then refits on all training
+events. The named feature matrix has 38 columns. The stance, NLI and embedding features are computed once per
+post and cached, so the classifiers themselves are cheap to train on every fold.
+
+% ===========================================================================
+\section{Results and Comparative Analysis}
+\label{sec:results}
+\subsection{Knowledge extraction and stance modules}
+Table~\ref{tab:retrieval} shows that dense BGE-M3 retrieval is the most accurate (MRR@10 of 0.859, close to the
+0.89 reported by KeepUp) but needs 304 CPU minutes for the evidence collection, whereas BM25 reaches 0.759 in
+under half a minute. Our cross-encoder re-ranker lowered MRR for both retrievers (0.710 and 0.720), which suggests
+that the unnamed re-ranker used by the authors was better matched to the data. For comment stance
+(Table~\ref{tab:stance}), the simple TF-IDF logistic regression achieved the highest macro-F1 (0.545) under
+event cross-fitting while being eight times faster than the frozen XStanceFusion network (0.527). Both are below
+the 0.68 reported in the base paper, which used a random comment split and a fine-tuned encoder. These results
+justified the cheaper extractors used in VeriFlux.
+
+\input{tables/retrieval_table.tex}
+\input{tables/stance_table.tex}
+
+\subsection{Main comparison}
+Table~\ref{tab:main} and Fig.~\ref{fig:gap} give the main results. The first observation is that every model
+loses performance when events are held out, from 0.066 macro-F1 for KNN up to 0.198 for VeriFlux-Lite, with
+KeepUp losing between 0.143 and 0.147. The event lookup rule explains why: it has no knowledge of the post at all,
+yet it scores \LookupRandomFone{} under random splits, higher than every learned baseline, and falls to
+\LookupEventFone{} on new events. Random-split scores on KeepUp therefore mostly reward recognising the story,
+and our reproduced KeepUp scores of \KUrandomFone{}--\KUseqrandomFone{} are consistent with the published 0.78
+once the test-set epoch selection of the released code is removed.
+
+Under the event-held-out protocol VeriFlux is the best model on accuracy (\VFeventAcc{}), macro precision,
+recall, F1 (\VFeventFone{}) and AUC (\VFeventAuc{}), and also has the lowest fold-to-fold variation of the
+competitive models. Compared with KeepUp, it improves macro-F1 by 0.085 over the released-code variant (relative
+gain 15.7\%) and by 0.071 over the paper-spec variant. Table~\ref{tab:sig} shows that the gain over the
+released-code variant is significant (Wilcoxon $p=0.003$, McNemar $p<10^{-4}$, bootstrap CI $[0.054,0.183]$). The
+strongest baselines, SVM and random forest, both reach 0.620; VeriFlux is 0.008 higher in F1 and 0.024 higher in
+AUC than the SVM, but this F1 difference is not statistically significant (Wilcoxon $p=0.80$ and $0.60$, with
+confidence intervals that include zero). We therefore claim that VeriFlux is at least as accurate as the best
+baselines on unseen events while being significantly better than the base paper, and not that it is clearly
+superior to every baseline.
+
+Under random splits, VeriFlux-Lite is the best model with a macro-F1 of \VFLrandomFone{} and an AUC of
+\VFLrandomAuc{}, ahead of the ensemble (0.726) and KeepUp (\KUseqrandomFone{}). VeriFlux itself scores lower
+there (\VFrandomFone{}), which is expected: the contrast removes the event identity that a random split rewards,
+so the model cannot profit from memorising events. The two variants thus illustrate the central finding of the
+study: the model that looks best under the usual protocol is not the model that generalises best.
+
+\input{tables/main_table.tex}
+\input{tables/sig_table.tex}
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/random_vs_event.pdf}
+\caption{Macro-F1 under random and event-held-out splits for every model.}
+\label{fig:gap}
+\end{figure}
+
+\subsection{Ablation}
+Table~\ref{tab:ablation} isolates the components of both variants. In VeriFlux, removing the event contrast
+lowers macro-F1 from 0.628 to 0.617 and AUC from 0.687 to 0.673, and makes the model much less stable across folds
+(standard deviation 0.089 instead of 0.059). Removing the text embedding has the largest effect (0.572),
+confirming that the frozen multilingual representation carries most of the cross-event signal. Removing the 38
+named features does not reduce F1 (0.629), so in the kernel model their information is already present in the
+embedding; they remain useful because they make the transformer-free variant possible and explainable.
+
+In VeriFlux-Lite, both the contrast (0.579 without it) and the text prior (0.577 without it) help, and removing
+both gives 0.568. User and engagement features matter most among the named families: dropping them costs 0.013
+and 0.011 F1. Removing the evidence features does not hurt (0.595), which shows that claim-level evidence scores
+do not transfer to new events, even though they are useful within known events. Replacing LightGBM with a random
+forest improves the Lite model on unseen events (0.610), but we keep LightGBM because it supports the exact
+TreeSHAP explanations used below.
+
+\input{tables/ablation_table.tex}
+
+\subsection{Comment budget (early-detection proxy)}
+Because the comments in KeepUp have no timestamps, true time-based early detection cannot be evaluated. As a
+proxy, we restricted VeriFlux-Lite to the first $k$ comments of each post in the order of the released sheet.
+Fig.~\ref{fig:budget} shows that macro-F1 is essentially flat: 0.592 with no comments, 0.597 with 10 and 0.593 with
+all of them. On unseen events the decision therefore rests on the post, its author and its engagement, which means
+that the model can already be applied when a post is published, before readers have reacted. This proxy does not
+reflect real arrival times and should be confirmed on timestamped data.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/comment_budget.pdf}
+\caption{Event-held-out macro-F1 of VeriFlux-Lite when only the first $k$ comments per post are available.}
+\label{fig:budget}
+\end{figure}
+
+\subsection{Efficiency}
+Table~\ref{tab:cost} reports the end-to-end CPU latency per post with batch size 1, with claim-level work
+(retrieval and claim entailment) amortised over the average of 5.95 posts per event. KeepUp needs 6,028 ms per
+post, dominated by running the stance network over every comment, and loads 4.4 GB of model weights. VeriFlux
+needs 569 ms (\LatencyRatio{} times faster) with 2.0 GB of weights, and VeriFlux-Lite needs 204 ms (29.5 times
+faster) with 0.9 GB. Both proposed models can therefore process thousands of posts per hour on an ordinary laptop.
+
+\input{tables/cost_table.tex}
+
+\subsection{Explainability}
+Fig.~\ref{fig:shap} and Table~\ref{tab:shap} show the global TreeSHAP importance of the VeriFlux-Lite features.
+The text prior is the most influential feature, followed by the top-evidence NLI probabilities (contradiction,
+neutral and entailment), the post--claim cosine similarity, the author's post count and the consistency term of
+Eq.~(\ref{eq:consistency}). To test whether these explanations are faithful, we deleted the top-$k$ features of each
+prediction and measured the change in predicted probability: removing the top 1, 3 and 5 features changes it by
+0.118, 0.168 and 0.202, compared with 0.016, 0.037 and 0.052 for randomly chosen features. The feature rankings are
+also stable, with a mean Spearman correlation of 0.78 (minimum 0.69) between folds. One tension is worth noting: the
+evidence features rank highly because they separate posts within the training events, yet the ablation shows they
+add nothing on new events. Explanations describe what the model uses, not necessarily what generalises.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/shap_global.pdf}
+\caption{Global TreeSHAP importance of VeriFlux-Lite features on held-out events (seed-42 folds).}
+\label{fig:shap}
+\end{figure}
+\input{tables/shap_table.tex}
+
+\subsection{Language-stratified results}
+Table~\ref{tab:lang} breaks down event-held-out macro-F1 by title language. On the 664 English titles, VeriFlux
+and random forest share the best score (0.629). The 332 Urdu-script titles are the hardest for every model
+(0.48--0.54), and here the transformer-free VeriFlux-Lite is the best (0.539), probably because its character
+n-gram text prior handles Urdu script better than the frozen XLM-R embedding. Roman Urdu has only 27 titles, so
+its scores vary widely between models and no conclusion can be drawn from it.
+
+\input{tables/lang_table.tex}
+
+% ===========================================================================
+\section{Discussion}
+\label{sec:discussion}
+The main finding of this study concerns evaluation rather than architecture. On KeepUp, a random split of posts
+lets a model succeed by recognising which event a post belongs to: a lookup rule with no access to the post reaches
+0.768 macro-F1, and every learned model drops sharply when events are held out. The 0.78 reported for KeepUp is
+therefore not a measure of how well the framework would judge a new rumour, and our reproduction obtains
+0.686--0.712 on random splits and 0.543--0.565 on unseen events. Part of the remaining gap to the published figure
+is explained by the test-set epoch selection in the released code and by our frozen, rather than fine-tuned,
+encoder.
+
+When the protocol is fair, the large differences between architectures largely disappear. A heavy five-model
+pipeline performs worse than an RBF-SVM on the same pooled embedding, and the best models are separated by less
+than 0.01 macro-F1. VeriFlux is the best model on all event-held-out metrics, and its gain over KeepUp is
+significant, but its gain over the SVM and random forest baselines is within statistical noise. Its practical
+advantages are elsewhere: it is an order of magnitude cheaper than KeepUp, more stable across folds, and paired
+with a transformer-free variant that is explained faithfully and works without comments. These properties match
+the needs of fact-checking teams and newsrooms in low-resource settings, which have to triage many posts quickly
+on ordinary hardware and need to justify each flag to an editor.
+
+Compared with the reviewed literature, our results support the view that social signals are useful
+\cite{almutair2025msdsi,nivedita2026hgcm}: in the ablation, user and engagement features are the most valuable
+named families. They also qualify it. Claim-level evidence, the core of KeepUp and HCFND, did not transfer to new
+events in our experiments, and the strong scores reported on random splits by most reviewed studies may overstate
+real-world performance in the same way as on KeepUp. Only EvolveDetector \cite{ding2025evolvedetector} evaluates
+on unseen events, and our work extends that evaluation to social context and to Urdu.
+
+\section{Limitations and Future Work}
+\label{sec:limits}
+This study has several limitations. The dataset is small (1,024 posts and 172 events), so the confidence intervals
+are wide and differences below about 0.03 macro-F1 cannot be resolved. The comments have no timestamps, so early
+detection was approximated by a comment budget, and the engagement counters are final totals collected after the
+fact. Because of the CPU-only environment, KeepUp and its stance network used frozen rather than fine-tuned
+encoders, which may underestimate their best performance. The language tags are heuristic, the Roman-Urdu subset
+is very small, and all results come from a single dataset. Finally, the final VeriFlux design was developed on
+five of the reported folds.
+
+Future work will address these points by re-collecting timestamped comments and engagement for true early
+detection, fine-tuning multilingual stance and encoder models on a GPU, testing cross-dataset transfer to
+FakeNewsNet and PHEME, running a human evaluation of the SHAP explanations with fact-checkers, and adding the images
+and videos attached to many posts.
+
+\section{Conclusion}
+\label{sec:conclusion}
+This paper studied social-context fake news detection on the multilingual KeepUp dataset. We re-implemented the
+KeepUp framework and thirteen baselines under identical folds and showed that random post splits reward event
+memorisation: a simple lookup rule nearly matches the published KeepUp score but fails on unseen events. We
+proposed VeriFlux, which combines a frozen multilingual embedding with compact named features and an event-context
+contrast. On unseen events VeriFlux achieved the best macro-F1 (\VFeventFone{}) and AUC (\VFeventAuc{}) of all
+models, significantly above KeepUp (\KUeventFone{}) and on par with the strongest baselines, while running
+\LatencyRatio{} times faster on a CPU. Its transformer-free variant VeriFlux-Lite achieved the best random-split
+macro-F1 (\VFLrandomFone{}), works without comments and provides faithful TreeSHAP explanations. We hope that the
+event-held-out protocol, the released code and the per-fold predictions will help future work report how well fake
+news detectors generalise to the next event rather than the last one.
+
+\section*{Code and Data Availability}
+The source code, per-fold predictions and result tables are available in the authors' project repository. The
+KeepUp dataset is available at
+\url{https://github.com/sehrishsafdar/KeepUp-A-unified-framework-and-Dataset}.
+
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}

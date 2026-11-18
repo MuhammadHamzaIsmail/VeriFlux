@@ -1,0 +1,24 @@
+# Python environment and caches
+.venv/
+__pycache__/
+*.pyc
+
+# Large or third-party data (re-created by the scripts; see README section 2)
+data/models/
+data/evidence/
+data/keepup_repo/
+data/processed/
+results/cache/
+
+# Node packages for the slide builder
+slides/node_modules/
+
+# Other authors' papers and course material (copyrighted, do not publish)
+original_paper_selected.pdf
+original paper links and simply discuss.pdf
+smaple conference paper for creating ieee.pdf
+veriflux_paper literatre review we did.pdf
+veriflux_paper_links used for literature review.md
+
+# Build artefacts
+paper/VeriFlux_overleaf.zip

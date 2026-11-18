@@ -1,0 +1,17 @@
+\begin{table}[t]
+\centering
+\caption{Four-class comment stance detection, 5-fold cross-fitting over events (macro P/R/F1)}
+\label{tab:stance}
+\footnotesize
+\begin{tabular}{lccccc}
+\toprule
+Model & P & R & F1 & Acc & CPU min\\
+\midrule
+TF-IDF + LR (VeriFlux) & 0.546 & 0.545 & 0.545 & 0.556 & 17.5\\
+XLM-R (frozen) + LR & 0.491 & 0.551 & 0.503 & 0.501 & 33.3\\
+XStanceFusion (frozen XLM-R) & 0.514 & 0.558 & 0.527 & 0.536 & 141.4\\
+XLM-R + BiLSTM & 0.500 & 0.555 & 0.510 & 0.505 & 58.4\\
+XLM-R + BiGRU & 0.514 & 0.561 & 0.521 & 0.514 & 53.6\\
+\bottomrule
+\end{tabular}
+\end{table}

@@ -1,0 +1,13 @@
+11974 evidence docs; 188 claims
+bm25: MRR@10 = 0.7586
+Loading weights:   0%|          | 0/391 [00:00<?, ?it/s]Loading weights: 100%|██████████| 391/391 [00:00<00:00, 7177.69it/s]
+  evidence 16/11974 0.1min
+  evidence 816/11974 23.0min
+  evidence 1616/11974 48.6min
+  evidence 2416/11974 73.5min
+  evidence 3216/11974 96.3min
+  evidence 4016/11974 135.2min
+  evidence 4816/11974 162.0min
+  evidence 5616/11974 184.2min
+  evidence 6416/11974 204.7min
+  evidence 7216/11974 227.5min

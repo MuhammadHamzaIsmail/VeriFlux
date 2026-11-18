@@ -1,0 +1,13 @@
+veriflux {'train_light_s': 52.223946799997066, 'size_MB_light': 16.513291358947754, 'claim_ms': 366.0130099990056, 'bm25_index_build_s': 17.36842969999998, 'post_ms': 142.7265633334173, 'params_M': 224.648835, 'xlmr_svm_ms': 364.33999333336635, 'params_M_full': 502.69248300000004, 'peak_rss_MB': 3987.859375, 'pipeline': 'veriflux', 'total_ms_per_post': np.float64(204.20531110668776)}
+keepup {'claim_ms': 5544.5926699991105, 'post_ms': 5096.41872333353, 'params_M': 1088.94062, 'peak_rss_MB': 5083.703125, 'pipeline': 'keepup', 'total_ms_per_post': np.float64(6027.737023372443)}
+                                           component  ...      size_mb
+0                    KeepUp: claim-level (per claim)  ...          NaN
+1                                 KeepUp: post-level  ...          NaN
+2                                     KeepUp (total)  ...  4355.762480
+3  VeriFlux-Lite / VeriFlux: claim-level (per claim)  ...          NaN
+4               VeriFlux-Lite / VeriFlux: post-level  ...          NaN
+5                              VeriFlux-Lite (total)  ...   898.595340
+6                VeriFlux: XLM-R doc embedding + SVM  ...          NaN
+7                                   VeriFlux (total)  ...  2010.769932
+
+[8 rows x 4 columns]

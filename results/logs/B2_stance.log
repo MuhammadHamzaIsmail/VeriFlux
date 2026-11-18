@@ -1,0 +1,42 @@
+[bilstm] fold 0: train 55602 test 13905
+    bilstm epoch 1/3 loss=1.1563 (383s)
+    bilstm epoch 2/3 loss=1.0151 (220s)
+    bilstm epoch 3/3 loss=0.9859 (214s)
+[bilstm] fold 1: train 55632 test 13875
+    bilstm epoch 1/3 loss=1.1362 (220s)
+    bilstm epoch 2/3 loss=0.9789 (213s)
+    bilstm epoch 3/3 loss=0.9379 (211s)
+[bilstm] fold 2: train 55667 test 13840
+    bilstm epoch 1/3 loss=1.1353 (228s)
+    bilstm epoch 2/3 loss=0.9911 (208s)
+    bilstm epoch 3/3 loss=0.9496 (208s)
+[bilstm] fold 3: train 55656 test 13851
+    bilstm epoch 1/3 loss=1.1224 (214s)
+    bilstm epoch 2/3 loss=0.9701 (213s)
+    bilstm epoch 3/3 loss=0.9373 (210s)
+[bilstm] fold 4: train 55471 test 14036
+    bilstm epoch 1/3 loss=1.1219 (215s)
+    bilstm epoch 2/3 loss=0.9676 (214s)
+    bilstm epoch 3/3 loss=0.9266 (212s)
+{'model': 'bilstm', 'precision': 0.5003893847153396, 'recall': 0.5547827318858788, 'f1': 0.510414414317947, 'accuracy': 0.5053016242968335, 'minutes': 58.38679113785426}
+[bigru] fold 0: train 55602 test 13905
+    bigru epoch 1/3 loss=1.1538 (211s)
+    bigru epoch 2/3 loss=1.0013 (208s)
+    bigru epoch 3/3 loss=0.9661 (210s)
+[bigru] fold 1: train 55632 test 13875
+    bigru epoch 1/3 loss=1.1334 (209s)
+    bigru epoch 2/3 loss=0.9671 (209s)
+    bigru epoch 3/3 loss=0.9273 (208s)
+[bigru] fold 2: train 55667 test 13840
+    bigru epoch 1/3 loss=1.1376 (210s)
+    bigru epoch 2/3 loss=0.9693 (206s)
+    bigru epoch 3/3 loss=0.9314 (207s)
+[bigru] fold 3: train 55656 test 13851
+    bigru epoch 1/3 loss=1.1248 (208s)
+    bigru epoch 2/3 loss=0.9600 (206s)
+    bigru epoch 3/3 loss=0.9243 (203s)
+[bigru] fold 4: train 55471 test 14036
+    bigru epoch 1/3 loss=1.1255 (217s)
+    bigru epoch 2/3 loss=0.9601 (196s)
+    bigru epoch 3/3 loss=0.9218 (198s)
+{'model': 'bigru', 'precision': 0.513602590111001, 'recall': 0.5610431755109578, 'f1': 0.5212073867511464, 'accuracy': 0.5138331391082912, 'minutes': 53.60641793409983}

@@ -1,0 +1,65 @@
+text_prior           0.301652
+ev_C_top1            0.244146
+ev_N_top1            0.217226
+pc_cos               0.181059
+ev_E_top1            0.151439
+log_posts_count      0.149762
+consistency          0.129334
+ev_maxE_top3         0.104411
+ret_score            0.099078
+log_followers        0.097833
+title_chars          0.094187
+unverified           0.091536
+ev_maxC_top3         0.085614
+log_views            0.084580
+platform_facebook    0.082724
+dtype: float64
+   k  drop_top  drop_random  stability_spearman_mean  stability_spearman_min
+0  1  0.118176     0.015754                 0.779699                0.684893
+1  3  0.167853     0.037185                 0.779699                0.684893
+2  5  0.202098     0.052189                 0.779699                0.684893
+lang                                 english  other  roman_urdu   urdu
+model                                                                 
+Bi-GRU                                 0.556   0.25       0.738  0.497
+Bi-LSTM + XLM-R                        0.535   1.00       0.583  0.453
+Bi-RNN                                 0.548   1.00       0.678  0.512
+CNN+LSTM                               0.544   0.40       0.618  0.515
+Ensemble Learning                      0.604   1.00       0.679  0.556
+Event-majority lookup                  0.314   1.00       0.372  0.394
+Gradient Boosting                      0.611   1.00       0.720  0.521
+KNN                                    0.553   0.00       0.654  0.509
+KeepUp (paper spec)                    0.564   1.00       0.550  0.515
+KeepUp (released code)                 0.566   0.40       0.528  0.483
+LSTM                                   0.570   0.40       0.457  0.518
+Logistic Regression                    0.592   1.00       0.620  0.568
+Random Forest                          0.629   1.00       0.673  0.479
+SVM                                    0.625   1.00       0.716  0.495
+VeriFlux                               0.629   1.00       0.653  0.504
+VeriFlux embedding only [E]            0.623   1.00       0.716  0.492
+VeriFlux w/o event contrast [E, F]     0.621   1.00       0.693  0.500
+VeriFlux w/o named features [E, Ec]    0.621   1.00       0.693  0.523
+VeriFlux w/o text embedding [F, Fc]    0.597   0.40       0.565  0.461
+VeriFlux-Lite                          0.600   1.00       0.570  0.539
+VeriFlux-Lite @0 comments              0.603   1.00       0.490  0.537
+VeriFlux-Lite @10 comments             0.609   1.00       0.667  0.521
+VeriFlux-Lite @25 comments             0.594   1.00       0.563  0.536
+VeriFlux-Lite @3 comments              0.604   1.00       0.603  0.529
+VeriFlux-Lite @50 comments             0.600   1.00       0.624  0.524
+XGBoost                                0.609   1.00       0.724  0.530
+XLM-R + LightGBM                       0.613   1.00       0.765  0.527
+only engagement features               0.594   1.00       0.679  0.492
+only evidence features                 0.527   1.00       0.427  0.532
+only post_claim features               0.545   0.40       0.690  0.542
+only stance features                   0.551   1.00       0.586  0.515
+only text prior                        0.576   1.00       0.613  0.515
+only title features                    0.557   1.00       0.613  0.403
+only user features                     0.586   1.00       0.505  0.482
+w/o contrast and text prior            0.577   1.00       0.561  0.523
+w/o engagement features                0.583   1.00       0.556  0.540
+w/o event contrast                     0.577   1.00       0.597  0.545
+w/o evidence features                  0.617   1.00       0.649  0.497
+w/o post_claim features                0.594   1.00       0.546  0.546
+w/o stance features                    0.596   1.00       0.611  0.536
+w/o text prior                         0.597   1.00       0.563  0.497
+w/o title features                     0.600   1.00       0.597  0.546
+w/o user features                      0.583   1.00       0.649  0.538

@@ -1,0 +1,29 @@
+\begin{table}[t]
+\centering
+\caption{Event-held-out significance of VeriFlux vs.\ each model: mean macro-F1 difference over paired folds,
+event-bootstrap 95\% CI (seed 42), Wilcoxon signed-rank and McNemar $p$-values}
+\label{tab:sig}
+\scriptsize
+\begin{tabular}{lcccc}
+\toprule
+Compared model & $\Delta$F1 & 95\% CI & Wilcoxon & McNemar\\
+\midrule
+SVM & 0.008 & [-0.017, 0.067] & 0.804 & 0.0693\\
+Random Forest & 0.008 & [-0.007, 0.074] & 0.599 & 0.0325\\
+XLM-R + LightGBM & 0.014 & [-0.012, 0.080] & 0.158 & 0.0168\\
+Ensemble Learning & 0.014 & [-0.008, 0.085] & 0.303 & 0.00663\\
+XGBoost & 0.017 & [-0.008, 0.085] & 0.107 & 0.00663\\
+Gradient Boosting & 0.019 & [-0.003, 0.082] & 0.0413 & 0.00698\\
+Logistic Regression & 0.031 & [0.012, 0.100] & 0.107 & 0.000253\\
+Bi-GRU & 0.034 & [-0.015, 0.105] & 0.073 & 0.0193\\
+VeriFlux-Lite & 0.035 & [-0.007, 0.129] & 0.0125 & 0.000649\\
+Bi-RNN & 0.037 & [-0.007, 0.121] & 0.0554 & 0.00641\\
+LSTM & 0.039 & [-0.001, 0.106] & 0.0833 & 0.00333\\
+KNN & 0.045 & [0.016, 0.129] & 0.00537 & 2.29e-05\\
+CNN+LSTM & 0.068 & [-0.009, 0.145] & 0.0103 & 0.00653\\
+KeepUp (paper spec) & 0.071 & [0.005, 0.125] & 0.0625 & 0.00248\\
+KeepUp (released code) & 0.085 & [0.054, 0.183] & 0.00336 & 2.29e-05\\
+Bi-LSTM + XLM-R & 0.089 & [0.025, 0.138] & 0.125 & 2.1e-05\\
+\bottomrule
+\end{tabular}
+\end{table}

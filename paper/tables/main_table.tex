@@ -1,0 +1,39 @@
+\begin{table*}[t]
+\centering
+\caption{Fake news detection on KeepUp under identical folds. Event-held-out: mean over 15 test folds
+(3$\times$5-fold StratifiedGroupKFold by event). Random: 3$\times$5-fold stratified post split.
+P, R and F1 are macro-averaged; sd = standard deviation of event-held-out F1 across folds. Best value per
+column in bold (sanity rule excluded). $^\dagger$Token-sequence models: one repeat (5 folds) because of CPU cost.}
+\label{tab:main}
+\footnotesize
+\begin{tabular}{llcccccc|cc}
+\toprule
+ & & \multicolumn{6}{c|}{Event-held-out (primary)} & \multicolumn{2}{c}{Random split}\\
+Cat. & Model & Acc & P & R & F1 & AUC & sd & F1 & AUC\\
+\midrule
+ML & Logistic Regression & 0.600 & 0.602 & 0.600 & 0.597 & 0.644 & 0.081 & 0.714 & 0.781\\
+ML & SVM & 0.627 & 0.631 & 0.624 & 0.620 & 0.663 & 0.089 & 0.704 & 0.778\\
+ML & Random Forest & 0.631 & 0.636 & 0.626 & 0.620 & 0.656 & 0.076 & 0.703 & 0.768\\
+ML & Gradient Boosting & 0.615 & 0.618 & 0.613 & 0.609 & 0.651 & 0.062 & 0.699 & 0.773\\
+ML & KNN & 0.588 & 0.602 & 0.594 & 0.583 & 0.630 & 0.034 & 0.649 & 0.704\\
+ML & XGBoost & 0.617 & 0.620 & 0.614 & 0.611 & 0.655 & 0.078 & 0.713 & 0.792\\
+\midrule
+DL & LSTM & 0.595 & 0.595 & 0.593 & 0.589 & 0.624 & 0.065 & 0.691 & 0.761\\
+DL & Bi-RNN & 0.599 & 0.599 & 0.596 & 0.591 & 0.632 & 0.060 & 0.663 & 0.735\\
+DL & Bi-GRU & 0.603 & 0.604 & 0.599 & 0.594 & 0.628 & 0.075 & 0.683 & 0.753\\
+\midrule
+Hybrid & CNN+LSTM & 0.575 & 0.578 & 0.570 & 0.560 & 0.599 & 0.067 & 0.666 & 0.740\\
+Hybrid & XLM-R + LightGBM & 0.621 & 0.625 & 0.618 & 0.614 & 0.659 & 0.068 & 0.718 & 0.798\\
+Hybrid & Bi-LSTM + XLM-R$^\dagger$ & 0.578 & 0.579 & 0.570 & 0.547 & 0.610 & 0.107 & 0.703 & 0.771\\
+Hybrid & Ensemble Learning & 0.619 & 0.623 & 0.617 & 0.614 & 0.667 & 0.079 & 0.726 & 0.807\\
+\midrule
+Sanity & Event-majority lookup & 0.524 & 0.262 & 0.500 & 0.344 & 0.500 & 0.001 & 0.768 & 0.837\\
+\midrule
+Base & KeepUp (released code) & 0.587 & 0.609 & 0.577 & 0.543 & 0.633 & 0.086 & 0.686 & 0.755\\
+Base & KeepUp (paper spec)$^\dagger$ & 0.598 & 0.605 & 0.589 & 0.565 & 0.653 & 0.087 & 0.712 & 0.781\\
+\midrule
+Proposed & VeriFlux-Lite & 0.600 & 0.604 & 0.597 & 0.593 & 0.649 & 0.069 & \textbf{0.791} & \textbf{0.878}\\
+Proposed & VeriFlux & \textbf{0.638} & \textbf{0.649} & \textbf{0.635} & \textbf{0.628} & \textbf{0.687} & 0.059 & 0.699 & 0.775\\
+\bottomrule
+\end{tabular}
+\end{table*}

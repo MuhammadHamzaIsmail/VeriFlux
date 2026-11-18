@@ -1,0 +1,33 @@
+% Condensed from the authors' own literature review (Tables I-III). Re-check every cell against the papers.
+\begin{table*}[t]
+\centering
+\caption{Comparative analysis of the reviewed 2025--2026 journal articles}
+\label{tab:lit}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{2.1cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{2.6cm} >{\raggedright\arraybackslash}p{2.3cm} >{\raggedright\arraybackslash}p{2.6cm} >{\raggedright\arraybackslash}X c c c}
+\toprule
+Study & Method & Dataset & Evaluation & Key finding & Main limitation & Ctx & Cost & Ev.\\
+\midrule
+KeepUp \cite{wasim2026keepup} & BGE retrieval, NLI, XStanceFusion, CNN+BiGRU fusion & KeepUp (1,024 posts, 6 lang.) & Acc, P, R, F1, AUC & Acc/F1 0.78 & Random split; heavy; no cost or attribution & \checkmark & -- & -- \\
+EPRVFL \cite{gurjwar2025eprvfl} & BERT + shallow RVFL & PolitiFact, LIAR2, BuzzFeed & Acc, F1, time & ms-level inference & Text only & -- & \checkmark & -- \\
+Elbaghazaoui \cite{elbaghazaoui2025comparative} & GB, XGBoost, SVC & ISOT & Acc, time & 99.6\% acc. & Saturated article benchmark & -- & \checkmark & -- \\
+Mouratidis \cite{mouratidis2025misinformation} & TF-IDF/BERT + ML/DL, SHAP, LIME & 4 article sets & F1, MCC, AUC & BERT F1 up to 0.99 & Article text; random splits & -- & -- & -- \\
+HEMT-Fake \cite{jadhav2025hemtfake} & XLM-R, CNN-BiLSTM, ResNet, GraphSAGE & 74k articles, 5 lang. & Macro-F1, human study & +5\% macro-F1 & Four encoders; no Urdu & $\circ$ & -- & -- \\
+MSDSI-FND \cite{almutair2025msdsi} & LIWC, user and cascade features + ML & 68 COVID-19 roots & Acc, F1, AUC & AUC 0.994 & Very small; one topic & \checkmark & -- & $\circ$ \\
+HGCM-Net \cite{nivedita2026hgcm} & User--content graph, GAT, contrastive & FakeNewsNet & Acc, F1, MCC & Acc 97.1\% & Sparse-graph errors; heavy & \checkmark & -- & -- \\
+SiMiD \cite{ozcelik2025simid} & Contrastive transformer + community & 3 X datasets & Weighted F1 & F1 $>$90\% & Needs follower graph & \checkmark & -- & -- \\
+Phan et al. \cite{phan2025context} & BERT + dependency GCN & PolitiFact, GossipCop & Acc, F1 & +3 pp over SOTA & Two deep encoders & \checkmark & -- & -- \\
+HCFND \cite{kumar2025hcfnd} & Hashtag/entity context retrieval & Social benchmarks & Classification & Beats SOTA & Needs hashtags & \checkmark & -- & -- \\
+Sun et al. \cite{sun2025evolving} & Dynamic stance interaction, GNN & Rumour benchmarks & Classification & Stance evolution helps & Multimodal cost & \checkmark & -- & -- \\
+LDPG \cite{ji2026ldpg} & Windowed propagation graphs & PHEME, PolitiFact, GossipCop & Early detection & Robust early & Images + graphs & \checkmark & -- & -- \\
+EvolveDetector \cite{ding2025evolvedetector} & Continual learning, event memory & X, Weibo & Cross-event & Better on new events & Content only & -- & -- & \checkmark \\
+Harris et al. \cite{harris2025urduensemble} & ELECTRA+mBERT+XLM-R stacking & UrduFake@FIRE & Acc, F1 & Ensemble best & 3 transformers & -- & -- & -- \\
+Hook \& Bait \cite{harris2025hookbait} & LoRA LLaMA-2 7B & 78k Urdu + ISOT & Classification & Strong multilingual & 7B model cost & -- & -- & $\circ$ \\
+Farooq et al. \cite{farooq2025urdu} & ML, DL, BERT, GPT-2 & Bend the Truth, Ax-to-Grind & Acc, F1 & Transformers best & No social context & -- & -- & -- \\
+\midrule
+\textbf{VeriFlux (ours)} & XLM-R embedding + 38 named features + event contrast + SVM; Lite: LightGBM + TreeSHAP & KeepUp & Event-held-out, cost, SHAP & see Sec.~\ref{sec:results} & -- & \checkmark & \checkmark & \checkmark \\
+\bottomrule
+\multicolumn{9}{l}{Ctx = social context used; Cost = runtime reported; Ev. = unseen-event evaluation. \checkmark\ yes, $\circ$ partial, -- no.}
+\end{tabularx}
+\end{table*}

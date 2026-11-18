@@ -1,0 +1,9 @@
+component,ms_per_post,train_sec,size_mb
+KeepUp: claim-level (per claim),5544.5926699991105,,
+KeepUp: post-level,5096.41872333353,,
+KeepUp (total),6027.737023372443,,4355.76248
+VeriFlux-Lite / VeriFlux: claim-level (per claim),366.0130099990056,,
+VeriFlux-Lite / VeriFlux: post-level,142.7265633334173,,
+VeriFlux-Lite (total),204.20531110668776,,898.59534
+VeriFlux: XLM-R doc embedding + SVM,364.33999333336635,,
+VeriFlux (total),568.5453044400541,,2010.7699320000002

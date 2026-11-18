@@ -1,0 +1,17 @@
+\begin{table}[t]
+\centering
+\caption{Evidence retrieval for the 188 claims (MRR@10 against the gold evidence)}
+\label{tab:retrieval}
+\footnotesize
+\begin{tabular}{lcc}
+\toprule
+Retriever & MRR@10 & CPU min\\
+\midrule
+BM25 + cross-encoder & 0.710 & 39.1\\
+BM25 & 0.759 & 0.4\\
+BGE-M3 (dense) & 0.859 & 304.1\\
+BGE-M3 + cross-encoder & 0.720 & 318.2\\
+KeepUp released output & 0.900 & --\\
+\bottomrule
+\end{tabular}
+\end{table}
